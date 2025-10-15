@@ -13,7 +13,14 @@ export async function generateStaticParams() {
 /**
  * Service page component
  */
-export default async function ServicePage({ params }: { params: { slug: string } }) {
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function Page({ params }: PageProps) {
+
   const { slug } = params
 
   const query = `*[_type == "service" && slug.current == $slug][0]{
