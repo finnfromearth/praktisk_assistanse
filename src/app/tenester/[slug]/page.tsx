@@ -6,22 +6,23 @@ import PortableTextRenderer from '@/components/PortableTextRenderer'
  * Generate paths for all services at build time
  */
 export async function generateStaticParams() {
-  const slugs = await sanityClient.fetch(`*[_type == "service" && defined(slug.current)][].slug.current`)
+  const slugs = await sanityClient.fetch(
+    `*[_type == "service" && defined(slug.current)][].slug.current`
+  )
   return slugs.map((slug: string) => ({ slug }))
 }
 
 /**
  * Service page component
+ *
+ * Next.js 15 forventar at params er eit Promise.
  */
-interface PageProps {
-  params: {
-    slug: string;
-  };
+type PageProps = {
+  params: Promise<{ slug: string }>
 }
 
-export default async function Page({ params }: PageProps) {
-
-  const { slug } = params
+export default async function Page({ params }: Awaited<PageProps>) {
+  const { slug } = await params
 
   const query = `*[_type == "service" && slug.current == $slug][0]{
     title,
@@ -51,12 +52,12 @@ export default async function Page({ params }: PageProps) {
       )}
 
       <div className="prose prose-lg max-w-none mb-10">
-	  {service.body ? (
-	    <PortableTextRenderer value={service.body} />
-	  ) : (
-	    <p>Ingen detaljert tekst enno.</p>
-	  )}
-	</div>
+        {service.body ? (
+          <PortableTextRenderer value={service.body} />
+        ) : (
+          <p>Ingen detaljert tekst enno.</p>
+        )}
+      </div>
 
       <a
         href="/kontakt"
@@ -67,4 +68,3 @@ export default async function Page({ params }: PageProps) {
     </main>
   )
 }
-
